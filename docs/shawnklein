@@ -1,0 +1,16 @@
+shawnklein
+
+
+
+What it could be — a few directions to consider:
+1. Personal Portfolio / Landing Page (most impactful for job hunting)
+Transform the home page into a professional hub — your name, your pitch ("DevOps & Cloud Engineer"), links to GitHub projects, your resume, and contact info front and center. Keep the blog as a secondary section but don't let it lead. Think of it like a personal website that happens to have a blog, not a blog that happens to have your name on it.
+2. DevOps/Cloud Learning Journal
+This actually helps with the age concern you raised. Writing about what you're learning — documenting your AWS cert journey, Terraform experiments, k8s setups — signals to employers that you're current and active. Recruiters Google candidates. A post titled "Setting up a Kubernetes cluster on AWS EKS" from 2 months ago tells a story that your resume can't.
+3. Project Showcase
+Your projects page on thekleinbottle.com already exists — you could consolidate everything under shawnklein.net and give each project its own page with a writeup, screenshots, and GitHub links. The Adler Planetarium project alone is a great story.
+4. Niche Authority Blog
+Pick one lane — DevOps, home lab setups, Python automation — and write 1 post per month consistently. Not for viral traffic, just so your site looks alive and focused when someone checks you out.
+
+
+

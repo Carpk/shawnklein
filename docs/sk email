@@ -1,0 +1,118 @@
+sk email
+
+
+Yes 👍 — you can forward email from a domain registered in AWS to your personal email, even if your site is just static HTML. The website hosting doesn’t matter because email is controlled by DNS (MX records), not your web backend.
+
+There are three common approaches, from easiest to most “AWS-native”.
+
+1️⃣ Easiest: Use a simple email forwarding service (recommended)
+
+This is what most people with static sites do.
+
+Services like:
+
+ImprovMX (free tier)
+
+ForwardMX
+
+SimpleLogin
+
+Mailgun routes
+
+You just point your domain’s MX records to them.
+
+Example flow:
+
+Sign up for ImprovMX
+
+Add your domain
+
+Configure forwarding rule
+hello@yourdomain.com → you@gmail.com
+
+Change MX records in Route53
+
+Example MX records:
+
+MX 10 mx1.improvmx.com
+MX 20 mx2.improvmx.com
+
+Done. Emails sent to your domain get forwarded.
+
+This takes 5 minutes and avoids running infrastructure.
+
+2️⃣ AWS-only solution (SES + S3 + Lambda)
+
+If you want to stay entirely in AWS:
+
+Architecture:
+
+Email → SES → S3 → Lambda → forward to Gmail
+
+Steps:
+
+Verify your domain in Amazon SES
+
+Add MX record:
+
+MX 10 inbound-smtp.<region>.amazonaws.com
+
+SES receives email
+
+Email stored in S3
+
+Lambda forwards email to your personal address
+
+SES handles incoming mail using DNS MX records and can trigger Lambda to process it.
+
+Pros:
+
+extremely cheap (usually pennies)
+
+flexible (different addresses → different destinations)
+
+Cons:
+
+more setup
+
+requires Lambda code
+
+3️⃣ Paid email hosting (Google Workspace / Fastmail / Zoho)
+
+If you want actual inboxes on your domain.
+
+Example:
+
+you@yourdomain.com
+contact@yourdomain.com
+
+Providers:
+
+Google Workspace
+
+Fastmail
+
+Zoho Mail
+
+Cost: ~$3–6/month.
+
+👍 What I usually recommend
+
+For a static personal site:
+
+👉 ImprovMX + Route53
+
+You get:
+
+hello@yourdomain.com → yourgmail@gmail.com
+contact@yourdomain.com → yourgmail@gmail.com
+
+with no infrastructure.
+
+💡 If you want, tell me:
+
+whether your DNS is Route53
+
+the domain name format you want (hello@, contact@, etc.)
+
+I can give you the exact DNS records to paste into AWS so it works immediately.
