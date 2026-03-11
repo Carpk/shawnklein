@@ -1,0 +1,280 @@
+Below is a **rewritten version of your article with a stronger engineering/DevOps voice**. I kept your core points but made the tone more technical, implementation-focused, and less marketing-like — the style typical of engineering blogs.
+
+---
+
+# How I Reduced Phishing Attacks by 65% Using DMARC and Microsoft 365 Mail Flow Controls
+
+**Tags:** Email Security · DevOps · Microsoft 365 · Infrastructure
+**Date:** 2026
+
+---
+
+## The Problem
+
+A ~40-person creative studio was experiencing a steady stream of phishing emails:
+
+* Spoofed internal domains
+* Lookalike domains (`cornpany.com` vs `company.com`)
+* Credential harvesting links
+* Impersonation attempts targeting finance staff
+
+The environment had **no email authentication standards enforced** and minimal filtering beyond default Microsoft 365 spam policies.
+
+That meant attackers could easily send messages appearing to originate from the company's domain or leadership team.
+
+The goal was to implement **practical defenses that significantly reduced phishing without breaking legitimate email flows.**
+
+---
+
+# Step 1: Implement Email Authentication (SPF, DKIM, DMARC)
+
+The first step was establishing **domain authentication standards**.
+
+Without these, it's trivial for attackers to spoof your domain.
+
+### SPF
+
+We audited all legitimate sending sources and defined them explicitly in the SPF record:
+
+```
+v=spf1 include:spf.protection.outlook.com include:sendgrid.net -all
+```
+
+The `-all` policy ensures that any sender **not explicitly authorized fails SPF**.
+
+---
+
+### DKIM
+
+DKIM signing was enabled in Microsoft 365 for outbound mail.
+
+This ensures that:
+
+* messages are cryptographically signed
+* receiving servers can verify message integrity
+* the sending domain cannot be spoofed without the private key
+
+---
+
+### DMARC
+
+DMARC ties SPF and DKIM together and tells receiving mail servers **what to do when authentication fails**.
+
+Initial rollout:
+
+```
+v=DMARC1; p=none; rua=mailto:dmarc@domain.com; adkim=s; aspf=s
+```
+
+Starting with `p=none` allowed monitoring without enforcement.
+After two weeks of reviewing aggregate reports, the policy was tightened.
+
+Final enforcement:
+
+```
+v=DMARC1; p=quarantine; rua=mailto:dmarc@domain.com; pct=100; adkim=s; aspf=s
+```
+
+Eventually this moved to:
+
+```
+p=reject
+```
+
+Once all legitimate sending services were verified.
+
+This prevented attackers from successfully spoofing the domain in most cases. 
+
+---
+
+# Step 2: Microsoft Defender for Office 365
+
+Authentication reduces spoofing, but **phishing attacks rarely rely on spoofing alone**.
+
+Attackers frequently use:
+
+* newly registered domains
+* compromised legitimate mailboxes
+* display name impersonation
+
+To address this, **Microsoft Defender for Office 365 protection policies were enabled and tuned.**
+
+---
+
+## Anti-Phishing Policies
+
+Impersonation protection was configured for:
+
+* executives
+* finance staff
+* the organization’s domain
+* high-risk vendor domains
+
+Defender analyzes:
+
+* display name similarity
+* domain reputation
+* message structure
+* sending infrastructure
+
+Messages identified as impersonation attempts were automatically **sent to quarantine instead of the inbox**.
+
+---
+
+## Quarantine Center
+
+Rather than blocking messages silently, Defender routes suspicious messages to the **Microsoft 365 Quarantine Center**.
+
+Messages flagged for:
+
+* phishing
+* impersonation
+* malware attachments
+* malicious links
+
+are held for administrative review.
+
+This provided two benefits:
+
+1. Reduced the risk of malicious emails reaching users
+2. Allowed recovery of legitimate messages if detection produced false positives
+
+Operationally, it became a **central triage location for email security events**.
+
+---
+
+## Anti-Spam and Malware Policies
+
+Default Microsoft 365 spam policies were tuned to increase detection sensitivity.
+
+Key changes included:
+
+* stricter spam confidence thresholds
+* blocking high-risk attachment extensions
+* enabling **Safe Links** for URL rewriting and scanning
+* enabling **Safe Attachments** sandbox detonation
+
+This added runtime analysis to emails that passed authentication checks.
+
+---
+
+# Step 3: Exchange Online Mail Flow Rules
+
+DMARC prevents domain spoofing, but **mail flow rules are useful for handling edge cases and improving user awareness.**
+
+Several Exchange transport rules were implemented.
+
+---
+
+## External Sender Warning Banner
+
+All inbound messages originating outside the organization receive a warning banner prepended to the message body:
+
+```
+[EXTERNAL EMAIL] Use caution with links or attachments.
+```
+
+This simple control significantly improves user awareness.
+
+Users quickly learn that legitimate internal communication **should not contain the external banner**.
+
+---
+
+## Internal Domain Spoofing Detection
+
+A separate rule detects messages that:
+
+* contain the organization's domain in the sender field
+* but originate from outside Microsoft 365 infrastructure
+
+These messages are flagged with an additional warning:
+
+```
+WARNING: This message claims to be from our domain but originated externally.
+```
+
+This targets a common phishing tactic where attackers spoof internal email addresses.
+
+---
+
+## Lookalike Domain Filtering
+
+Transport rules were also used to block known **typosquatted domains**, for example:
+
+```
+cornpany.com
+company.co
+companny.com
+```
+
+These are frequently used in phishing campaigns targeting employees familiar with the legitimate domain.
+
+---
+
+# Step 4: Security Monitoring
+
+Email security events were integrated into **Microsoft Sentinel** to enable alerting.
+
+Alerts were generated for:
+
+* DMARC failures involving owned domains
+* repeated login failures following phishing campaigns
+* suspicious link click activity
+
+This created visibility into potential account compromise events.
+
+---
+
+# Results
+
+Within six months:
+
+* **Phishing reports dropped ~65%**
+* Domain spoofing attempts were fully blocked
+* Suspicious emails were intercepted before reaching users
+* Security incidents shifted from reactive to proactive monitoring
+
+The biggest improvement came from **layering controls rather than relying on a single technology.**
+
+---
+
+# Lessons Learned
+
+### DMARC Alone Isn't Enough
+
+DMARC stops domain spoofing but does not stop:
+
+* lookalike domains
+* compromised mailboxes
+* social engineering emails
+
+### User Context Matters
+
+Simple warning banners dramatically improved phishing awareness.
+
+Users often caught suspicious emails **before security teams did.**
+
+### Monitoring Is Critical During DMARC Rollout
+
+Several legitimate systems initially failed DMARC due to missing SPF includes. 
+
+Without monitoring first, those messages would have been rejected.
+
+---
+
+# Takeaway
+
+Effective email security requires **defense in depth**.
+
+The most effective stack in this deployment was:
+
+* SPF + DKIM + DMARC authentication
+* Microsoft Defender for Office 365
+* Exchange mail flow rules
+* quarantine review workflows
+* monitoring via Sentinel
+
+Individually these controls help.
+Combined, they significantly reduce phishing risk.
+
+

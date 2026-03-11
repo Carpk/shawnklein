@@ -38,6 +38,86 @@ Wired email security events into the SIEM (Sentinel) to alert on:
 - Repeated failed logins following a phishing campaign
 - Suspicious link click patterns from mail client telemetry
 
+### 4. Microsoft Defender for Office 365 Protection Policies
+
+Once email authentication was in place, the next step was enabling Microsoft Defender for Office 365 protections to reduce phishing and impersonation attempts that still bypass basic checks.
+
+Defender introduced several key layers of protection:
+
+#### Anti-Phishing Policies
+
+We configured impersonation protection to detect emails pretending to come from:
+
+- Executives and finance staff
+- Internal domains
+- Trusted vendors
+
+Defender analyzes sender reputation, domain similarity, and message characteristics to identify impersonation attempts. When triggered, messages are automatically sent to quarantine instead of reaching the inbox.
+
+#### Quarantine Center
+
+Defender’s Quarantine Center became the central review location for suspicious messages.
+
+Instead of outright deleting questionable emails, messages flagged for:
+
+- phishing
+- spoofing
+- malware attachments
+- suspicious links
+
+were automatically quarantined for review by administrators.
+
+This reduced risk while still allowing us to recover legitimate messages if needed.
+
+#### Anti-Spam and Anti-Malware Policies
+
+We tightened the default policies by:
+
+- increasing spam detection sensitivity
+- blocking high-risk attachment types from unknown senders
+- enabling Safe Links and Safe Attachments scanning
+
+This ensured links were analyzed in real time and attachments detonated in a sandbox before delivery.
+
+##### External Sender Warning Rules
+
+We also created Exchange Online mail flow (transport) rules to provide visual warnings to users.
+
+One rule prepended a warning banner when messages originated outside the organization:
+
+```
+[EXTERNAL EMAIL] Be cautious when clicking links or opening attachments.
+```
+
+Another rule flagged messages that appeared to come from our domain but were sent externally, which is a common spoofing technique.
+
+For example:
+
+```
+WARNING: This email appears to originate from our domain but was sent from an external server.
+```
+
+These banners proved surprisingly effective because they provided instant visual context before users interacted with the email.
+
+### Why Authentication Alone Isn't Enough
+
+Even with SPF, DKIM, and DMARC configured, phishing attacks can still succeed through:
+
+- compromised legitimate accounts
+- newly registered lookalike domains
+- social engineering messages without malicious attachments
+
+This is where Defender’s behavioral analysis and impersonation detection made the difference.
+
+The combination of:
+
+- DMARC enforcement
+- Defender anti-phishing protection
+- transport rules
+- quarantine review
+- created a layered defense model.
+
+
 ## Results
 
 - **65% reduction** in reported phishing incidents over 6 months
