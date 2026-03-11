@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
@@ -257,27 +258,27 @@
   <h2 class="section-title">Technical Notes</h2>
 
   <div class="writing-grid">
-    <a href="#" class="post-card">
+    <a href="#" class="post-card" data-src="writing/dmarc-phishing.md">
       <div class="post-tag">DevOps · AWS</div>
       <div class="post-title">How I Reduced Phishing Attacks 65% with DMARC and Custom Transport Rules</div>
     </a>
-    <a href="#" class="post-card">
+    <a href="#" class="post-card" data-src="writing/network-infrastructure.md">
       <div class="post-tag">Infrastructure</div>
       <div class="post-title">Designing Secure Small-Business Network Infrastructure from Scratch</div>
     </a>
-    <a href="#" class="post-card">
+    <a href="#" class="post-card" data-src="writing/raspberry-pi-installations.md">
       <div class="post-tag">Embedded · IoT</div>
       <div class="post-title">Building Interactive Museum Installations with Raspberry Pi</div>
     </a>
-    <a href="#" class="post-card">
+    <a href="#" class="post-card" data-src="writing/powershell-gpos.md">
       <div class="post-tag">Automation</div>
       <div class="post-title">Automating IT Operations with PowerShell and GPOs</div>
     </a>
-    <a href="#" class="post-card">
+    <a href="#" class="post-card" data-src="writing/erp-aws-cdk.md">
       <div class="post-tag">Cloud · AWS</div>
       <div class="post-title">Deploying and Managing an ERP on AWS CDK</div>
     </a>
-    <a href="#" class="post-card">
+    <a href="#" class="post-card" data-src="writing/python-data-cleaning.md">
       <div class="post-tag">Python</div>
       <div class="post-title">Using Python Scripts to Clean 150,000+ Record Datasets</div>
     </a>
@@ -332,6 +333,15 @@
   </div>
 </section>
 
+<!-- POST MODAL -->
+<div class="modal" id="post-modal" role="dialog" aria-modal="true">
+  <div class="modal-overlay"></div>
+  <div class="modal-panel">
+    <button class="modal-close" aria-label="Close">&times;</button>
+    <div class="modal-body prose"></div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-text">© 2026 Shawn Klein — Chicago, IL</div>
@@ -354,6 +364,41 @@
   }, { threshold: 0.1 });
 
   document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el));
+
+  // Post modal
+  const modal = document.getElementById('post-modal');
+  const modalBody = modal.querySelector('.modal-body');
+  const modalClose = modal.querySelector('.modal-close');
+
+  function openModal(src) {
+    modalBody.innerHTML = '<p class="modal-loading">Loading...</p>';
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    fetch(src)
+      .then(r => {
+        if (!r.ok) throw new Error('Not found');
+        return r.text();
+      })
+      .then(md => { modalBody.innerHTML = marked.parse(md); })
+      .catch(() => { modalBody.innerHTML = '<p class="modal-error">Post coming soon.</p>'; });
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.post-card[data-src]').forEach(card => {
+    card.addEventListener('click', e => {
+      e.preventDefault();
+      openModal(card.dataset.src);
+    });
+  });
+
+  modalClose.addEventListener('click', closeModal);
+  modal.querySelector('.modal-overlay').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
 
 </body>
