@@ -87,7 +87,7 @@ nav {
   padding: 8rem 4rem 4rem;
   position: relative;
   overflow: hidden;
-  max-width: 1000px;      /* limit width */
+  max-width: 1500px;      /* limit width */
   margin: 0 auto;         /* centre the hero on large screens */
 }
 
